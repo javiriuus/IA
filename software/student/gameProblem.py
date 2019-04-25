@@ -29,15 +29,24 @@ class GameProblem(SearchProblem):
     def actions(self, state):
         '''Returns a LIST of the actions that may be executed in this state
         '''
-        acciones = []
+        action = ['South', 'North', 'East', 'West']
         
-        return acciones
+        return action
     
 
     def result(self, state, action):
         '''Returns the state reached from this state when the given action is executed
         '''
-        next_state = 0
+        if action == 'South' and ((state[0], state[1]+1) not in self.POSITIONS ['building']):
+            next_state = (state[0], state[1]+1)
+        elif action == 'North' and ((state[0], state[1]-1) not in self.POSITIONS ['building']):
+            next_state = (state[0], state[1]-1)
+        elif action == 'East' and ((state[0]+1, state[1]) not in self.POSITIONS ['building']):
+            next_state = (state[0]+1, state[1])
+        elif action == 'West' and ((state[0]-1, state[1]) not in self.POSITIONS ['building']):
+            next_state = (state[0]-1, state[1])
+        else:
+            next_state = (state[0], state[1])
 
         return next_state
 
@@ -45,7 +54,7 @@ class GameProblem(SearchProblem):
     def is_goal(self, state):
         '''Returns true if state is the final state
         '''
-        return True
+        return state == (9,6)
 
     def cost(self, state, action, state2):
         '''Returns the cost of applying `action` from `state` to `state2`.
@@ -72,8 +81,8 @@ class GameProblem(SearchProblem):
 	print 'POSITIONS: ', self.POSITIONS, '\n'
 	print 'CONFIG: ', self.CONFIG, '\n'
 
-        initial_state = None
-        final_state= None
+        initial_state = self.POSITIONS['start'][0]
+        final_state= self.POSITIONS['customer2'][0]
         algorithm= simpleai.search.astar
 
         return initial_state,final_state,algorithm

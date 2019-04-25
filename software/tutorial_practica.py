@@ -4,7 +4,7 @@
 
 '''
     Busqueda no informada
-    
+
     Para cualquier problema hay que implementar los siguientes metodos:
       actions: LISTA de acciones posibles en cierto estado: (accion1,accion2,...)
       result: LISTA (estado,accion)
@@ -22,7 +22,7 @@
       Heuristic: no
       Algorithm: breadth-first
 
-    Problema 2: 
+    Problema 2:
       Estado inicial: A
       Acciones: mover a un estado conectado
       Objetivo: H
@@ -33,7 +33,7 @@
 import os
 import sys
 
-sys.path.append(os.path.abspath("../simpleai-0.8.1"))
+sys.path.append(os.path.abspath("simpleai-0.8.1"))
 
 # Clase básica
 from simpleai.search import SearchProblem
@@ -85,9 +85,9 @@ class MapProblem(SearchProblem):
 # --------------- Metodos FUERA DE LA CLASE MapProblem -----------------
 
 def ejercicioMapa(problem,algorithm,use_viewer=None):
-    
+
     result = algorithm(problem,graph_search=True,viewer=use_viewer)
-    
+
     if result:
         print("Estado final:" + result.state)
         # La llamada devuelve el camino hasta dicho estado.
@@ -98,17 +98,17 @@ def ejercicioMapa(problem,algorithm,use_viewer=None):
     else:
         print("WARNING: resultado de algoritmo de búsqueda vacío!!!")
 
-        
+
     # Ejemplo de creación de una lista de pares {name,value}
     # No es necesario poner if use_viewer is not None
     if use_viewer:
         stats = [{'name': stat.replace('_', ' '), 'value': value}
                          for stat, value in list(use_viewer.stats.items())]
-        
+
         # Ejemplo de bucle sobre elementos de una lista
         for s in stats:
             print ('{0}: {1}'.format(s['name'],s['value']))
-            
+
     return result
 
 def getTotalCost (problem,result):
@@ -126,9 +126,17 @@ def getTotalCost (problem,result):
 # -------------------------  RESOLUCIÓN DE LOS PROBLEMAS ----------------------
 
 # RESOLUCION DEL PROBLEMA 1
-estado_inicial=None
-estado_final=None
-mapa=None
+estado_inicial="A"
+estado_final="H"
+sucesoresA= {'accion-1':'B', 'accion-2':'C'}
+sucesoresB= {'accion-1':'D', 'accion-2':'E'}
+sucesoresC= {'accion-1':'E'}
+sucesoresD= {'accion-1':'F', 'accion-2':'G'}
+sucesoresE= {'accion-1':'G', 'accion-2':'H'}
+sucesoresF= {}
+sucesoresG= {'accion-1':'H'}
+sucesoresH= {}
+mapa = { "A" : sucesoresA, "B" : sucesoresB, "C" : sucesoresC, "D" : sucesoresD, "E" : sucesoresE, "F" : sucesoresF, "G" : sucesoresG, "H" : sucesoresH}
 
 problem = MapProblem(estado_inicial)
 problem.mapaProblema = mapa
@@ -146,4 +154,4 @@ ejercicioMapa(problem,algorithm=breadth_first,use_viewer=BaseViewer())
 #ejercicioMapa(problem,algorithm=breadth_first,use_viewer=ConsoleViewer())
 
 
-    
+
