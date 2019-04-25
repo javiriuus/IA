@@ -21,7 +21,7 @@ class GameProblem(SearchProblem):
     SHOPS=None
     CUSTOMERS=None
     MAXBAGS = 0
-
+    num_pizzas = 0
     MOVES = ('West','North','East','South')
 
    # --------------- Common functions to a SearchProblem -----------------
@@ -29,14 +29,10 @@ class GameProblem(SearchProblem):
     def actions(self, state):
         '''Returns a LIST of the actions that may be executed in this state
         '''
-        action = ['South', 'North', 'East', 'West']
+        action = ['South', 'North', 'East', 'West','Load','Deliver']
         
         return action
-    
-
-    def result(self, state, action):
-        '''Returns the state reached from this state when the given action is executed
-        '''
+    def move(self,state,action):
         if action == 'South' and ((state[0], state[1]+1) not in self.POSITIONS ['building']):
             next_state = (state[0], state[1]+1)
         elif action == 'North' and ((state[0], state[1]-1) not in self.POSITIONS ['building']):
@@ -50,11 +46,24 @@ class GameProblem(SearchProblem):
 
         return next_state
 
+    def result(self, state, action):
+        '''Returns the state reached from this state when the given action is executed
+        '''
+        if state in self.POSITIONS['street']:
+            next_state = move(state,action)
+        elif state in self.POSITIONS['pizza']:
+            if num_pizzas<MAXBAGS:
+                num_pizzas = MAXBAGS
+            next_state = move(state,['North','South','East','West'])
+        else:
+            next_state = (state[0],state[1])
+        return next_state
+
 
     def is_goal(self, state):
         '''Returns true if state is the final state
         '''
-        return state == (9,6)
+        return state in self.GOAL and num_pizzas == MAXBAGS
 
     def cost(self, state, action, state2):
         '''Returns the cost of applying `action` from `state` to `state2`.
@@ -82,7 +91,7 @@ class GameProblem(SearchProblem):
 	print 'CONFIG: ', self.CONFIG, '\n'
 
         initial_state = self.POSITIONS['start'][0]
-        final_state= self.POSITIONS['customer2'][0]
+        final_state= self.POSITIONS['pizza'][0]
         algorithm= simpleai.search.astar
 
         return initial_state,final_state,algorithm
