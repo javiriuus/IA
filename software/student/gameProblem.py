@@ -1,17 +1,8 @@
-
-'''
-    Class gameProblem, implements simpleai.search.SearchProblem
-'''
-
-
 from simpleai.search import SearchProblem
 # from simpleai.search import breadth_first,depth_first,astar,greedy
 import simpleai.search
 
 class GameProblem(SearchProblem):
-
-    # Object attributes, can be accessed in the methods below
-    
     MAP=None
     POSITIONS=None
     INITIAL_STATE=None
@@ -21,7 +12,7 @@ class GameProblem(SearchProblem):
     SHOPS=None
     CUSTOMERS=None
     MAXBAGS = 0
-    num_pizzas = 0
+    BAGS = 0
     MOVES = ('West','North','East','South')
 
    # --------------- Common functions to a SearchProblem -----------------
@@ -29,41 +20,35 @@ class GameProblem(SearchProblem):
     def actions(self, state):
         '''Returns a LIST of the actions that may be executed in this state
         '''
-        action = ['South', 'North', 'East', 'West','Load','Deliver']
-        
+        action = ['South', 'North', 'East', 'West']
         return action
-    def move(self,state,action):
-        if action == 'South' and ((state[0], state[1]+1) not in self.POSITIONS ['building']):
+
+    def result(self, state, action):
+        '''Returns the state reached from this state when the given action is executed
+        '''
+        if state in self.POSITIONS['pizza']:
+            self.BAGS=self.MAXBAGS
+            print ('He cogido una pizza')
+            print (self.BAGS)
+            print (self.MAXBAGS)
+            print (state)
+
+        if action == 'South' and ((state[0], state[1]+1) not in self.POSITIONS ['building']) and state[1]+1<self.CONFIG['map_size'][1]:
             next_state = (state[0], state[1]+1)
-        elif action == 'North' and ((state[0], state[1]-1) not in self.POSITIONS ['building']):
+        elif action == 'North' and ((state[0], state[1]-1) not in self.POSITIONS ['building']) and state[1]-1>=0:
             next_state = (state[0], state[1]-1)
-        elif action == 'East' and ((state[0]+1, state[1]) not in self.POSITIONS ['building']):
+        elif action == 'East' and ((state[0]+1, state[1]) not in self.POSITIONS ['building']) and state[0]+1<self.CONFIG['map_size'][0]:
             next_state = (state[0]+1, state[1])
-        elif action == 'West' and ((state[0]-1, state[1]) not in self.POSITIONS ['building']):
+        elif action == 'West' and ((state[0]-1, state[1]) not in self.POSITIONS ['building']) and state[0]-1>=0:
             next_state = (state[0]-1, state[1])
         else:
             next_state = (state[0], state[1])
 
         return next_state
 
-    def result(self, state, action):
-        '''Returns the state reached from this state when the given action is executed
-        '''
-        if state in self.POSITIONS['street']:
-            next_state = move(state,action)
-        elif state in self.POSITIONS['pizza']:
-            if num_pizzas<MAXBAGS:
-                num_pizzas = MAXBAGS
-            next_state = move(state,['North','South','East','West'])
-        else:
-            next_state = (state[0],state[1])
-        return next_state
-
-
     def is_goal(self, state):
-        '''Returns true if state is the final state
-        '''
-        return state in self.GOAL and num_pizzas == MAXBAGS
+        #print 'State: ', state, '\n'
+        return state == self.GOAL #and self.num_pizzas == self.MAXBAGS
 
     def cost(self, state, action, state2):
         '''Returns the cost of applying `action` from `state` to `state2`.
@@ -86,19 +71,18 @@ class GameProblem(SearchProblem):
            It also must set the values of the object attributes that the methods need, as for example, self.SHOPS or self.MAXBAGS
         '''
 
-        print '\nMAP: ', self.MAP, '\n'
-	print 'POSITIONS: ', self.POSITIONS, '\n'
-	print 'CONFIG: ', self.CONFIG, '\n'
-
+        print('\nMAP: ', self.MAP, '\n')
+        print('POSITIONS: ', self.POSITIONS, '\n')
+        print('CONFIG: ', self.CONFIG, '\n')
         initial_state = self.POSITIONS['start'][0]
-        final_state= self.POSITIONS['pizza'][0]
+        final_state= (7,0)
         algorithm= simpleai.search.astar
-
+        self.SHOPS=self.POSITIONS['pizza']
+        self.CUSTOMERS=self.POSITIONS['customer2']
         return initial_state,final_state,algorithm
-        
+
     def printState (self,state):
         '''Return a string to pretty-print the state '''
-        
         pps=''
         return (pps)
 
@@ -117,7 +101,7 @@ class GameProblem(SearchProblem):
         '''Returns an attribute value for a given position of the map
            position is a tuple (x,y)
            attributeName is a string
-           
+
            Returns:
                None if the attribute does not exist
                Value of the attribute otherwise
@@ -134,7 +118,7 @@ class GameProblem(SearchProblem):
         if pendingItems >= 0:
             stateData['newType']='customer{}'.format(pendingItems)
         return stateData
-        
+
     # THIS INITIALIZATION FUNCTION HAS TO BE CALLED BEFORE THE SEARCH
     def initializeProblem(self,map,positions,conf,aiBaseName):
         self.MAP=map
@@ -146,14 +130,13 @@ class GameProblem(SearchProblem):
         if initial_state == False:
             print ('-- INITIALIZATION FAILED')
             return True
-      
+
         self.INITIAL_STATE=initial_state
         self.GOAL=final_state
         self.ALGORITHM=algorithm
         super(GameProblem,self).__init__(self.INITIAL_STATE)
-            
+
         print ('-- INITIALIZATION OK')
         return True
-        
     # END initializeProblem 
 
