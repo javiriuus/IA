@@ -26,23 +26,29 @@ class GameProblem(SearchProblem):
     def result(self, state, action):
         '''Returns the state reached from this state when the given action is executed
         '''
-        if state in self.POSITIONS['pizza']:
+        #If on a pizzeria pick up bags
+        if state[0] in self.POSITIONS['pizza']:
             self.BAGS=self.MAXBAGS
             print ('He cogido una pizza')
             print (self.BAGS)
             print (self.MAXBAGS)
             print (state)
 
-        if action == 'South' and ((state[0], state[1]+1) not in self.POSITIONS ['building']) and state[1]+1<self.CONFIG['map_size'][1]:
-            next_state = (state[0], state[1]+1)
-        elif action == 'North' and ((state[0], state[1]-1) not in self.POSITIONS ['building']) and state[1]-1>=0:
-            next_state = (state[0], state[1]-1)
-        elif action == 'East' and ((state[0]+1, state[1]) not in self.POSITIONS ['building']) and state[0]+1<self.CONFIG['map_size'][0]:
-            next_state = (state[0]+1, state[1])
-        elif action == 'West' and ((state[0]-1, state[1]) not in self.POSITIONS ['building']) and state[0]-1>=0:
-            next_state = (state[0]-1, state[1])
+        #If on a house deliver and remove customer from tuple
+        if state[0] in self.POSITIONS['customer2']:
+            self.POSITIONS['customer2'] = self.POSITIONS['customer2'][1:]
+            self.BAGS -= 2
+
+        if action == 'South' and ((state[0][0], state[0][1]+1) not in self.POSITIONS ['building']) and state[0][1]+1<self.CONFIG['map_size'][1]:
+            next_state = (state[0], state[1]+1), self.BAGS, self.POSITIONS['customer2']
+        elif action == 'North' and ((state[0][0], state[0][1]-1) not in self.POSITIONS ['building']) and state[0][1]-1>=0:
+            next_state = (state[0], state[1]-1), self.BAGS, self.POSITIONS['customer2']
+        elif action == 'East' and ((state[0][0]+1, state[0][1]) not in self.POSITIONS ['building']) and state[0][0]+1<self.CONFIG['map_size'][0]:
+            next_state = (state[0]+1, state[1]), self.BAGS, self.POSITIONS['customer2']
+        elif action == 'West' and ((state[0][0]-1, state[0][1]) not in self.POSITIONS ['building']) and state[0][0]-1>=0:
+            next_state = (state[0]-1, state[1]) , self.BAGS, self.POSITIONS['customer2']
         else:
-            next_state = (state[0], state[1])
+            next_state = (state[0], state[1]) , self.BAGS, self.POSITIONS['customer2']
 
         return next_state
 
@@ -74,7 +80,8 @@ class GameProblem(SearchProblem):
         print('\nMAP: ', self.MAP, '\n')
         print('POSITIONS: ', self.POSITIONS, '\n')
         print('CONFIG: ', self.CONFIG, '\n')
-        initial_state = self.POSITIONS['start'][0]
+        #initial_state = (position, bags, deliveries)
+        initial_state = self.POSITIONS['start'][0], self.BAGS, self.POSITIONS['customer2']
         final_state= (7,0)
         algorithm= simpleai.search.astar
         self.SHOPS=self.POSITIONS['pizza']
