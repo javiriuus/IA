@@ -12,49 +12,69 @@ class GameProblem(SearchProblem):
     SHOPS=None
     CUSTOMERS=None
     MAXBAGS = 0
-    BAGS = 0
     MOVES = ('West','North','East','South')
+    customer3 = 0
+    customer2 = 0
+    customer1 = 0
+    created = 0
 
    # --------------- Common functions to a SearchProblem -----------------
 
     def actions(self, state):
-        '''Returns a LIST of the actions that may be executed in this state
-        '''
-        action = ['South', 'North', 'East', 'West']
-        return action
+        return ['South', 'North', 'East', 'West', 'Load', 'Deliver']
 
     def result(self, state, action):
-        '''Returns the state reached from this state when the given action is executed
-        '''
         #If on a pizzeria pick up bags
-        if state[0] in self.POSITIONS['pizza']:
-            self.BAGS=self.MAXBAGS
-            print ('He cogido una pizza')
-            print (self.BAGS)
-            print (self.MAXBAGS)
-            print (state)
+        if state[0] in self.POSITIONS['pizza'] and action == 'Load':
+            next_state = (state[0], state[1]+1, state[2])
 
         #If on a house deliver and remove customer from tuple
-        if state[0] in self.POSITIONS['customer2']:
-            self.POSITIONS['customer2'] = self.POSITIONS['customer2'][1:]
-            self.BAGS -= 2
+        #We first check that this type of customer exists
+        try:
+            self.POSITIONS['customer3']
+        except:
+            self.customer3 = 0
+        else:
+            if state[0] in self.POSITIONS['customer3'] and state[1]>=3 and action == 'Deliver':
+                self.POSITIONS['customer3'] = self.POSITIONS['customer3'][1:]
+                next_state = (state[0], state[1]-3, state[2]-3)
+            self.customer3 = 1 #Exists
+        
+        try:
+            self.POSITIONS['customer2']
+        except:
+            self.customer2 = 0
+        else:
+            if state[0] in self.POSITIONS['customer2'] and state[1]>=2 and action == 'Deliver':
+                self.POSITIONS['customer2'] = self.POSITIONS['customer2'][1:]
+                next_state = (state[0], state[1]-2, state[2]-2)
+            self.customer2 = 1 #Exists    
+        
+        try:
+            self.POSITIONS['customer1']
+        except:
+            self.customer1 = 0
+        else:
+            if state[0] in self.POSITIONS['customer1'] and state[1]>=1 and action == 'Deliver':
+                self.POSITIONS['customer1'] = self.POSITIONS['customer1'][1:]
+                next_state = (state[0], state[1]-1, state[2]-1)
+            self.customer1 = 1 #Exists
 
         if action == 'South' and ((state[0][0], state[0][1]+1) not in self.POSITIONS ['building']) and state[0][1]+1<self.CONFIG['map_size'][1]:
-            next_state = (state[0], state[1]+1), self.BAGS, self.POSITIONS['customer2']
+            next_state = ((state[0][0], state[0][1]+1), state[1], state[2])
         elif action == 'North' and ((state[0][0], state[0][1]-1) not in self.POSITIONS ['building']) and state[0][1]-1>=0:
-            next_state = (state[0], state[1]-1), self.BAGS, self.POSITIONS['customer2']
+            next_state = ((state[0][0], state[0][1]-1), state[1], state[2])
         elif action == 'East' and ((state[0][0]+1, state[0][1]) not in self.POSITIONS ['building']) and state[0][0]+1<self.CONFIG['map_size'][0]:
-            next_state = (state[0]+1, state[1]), self.BAGS, self.POSITIONS['customer2']
+            next_state = ((state[0][0]+1, state[0][1]), state[1], state[2])
         elif action == 'West' and ((state[0][0]-1, state[0][1]) not in self.POSITIONS ['building']) and state[0][0]-1>=0:
-            next_state = (state[0]-1, state[1]) , self.BAGS, self.POSITIONS['customer2']
+            next_state = ((state[0][0]-1, state[0][1]) , state[1], state[2])
         else:
-            next_state = (state[0], state[1]) , self.BAGS, self.POSITIONS['customer2']
+            next_state = (state[0], state[1], state[2])
 
         return next_state
 
     def is_goal(self, state):
-        #print 'State: ', state, '\n'
-        return state == self.GOAL #and self.num_pizzas == self.MAXBAGS
+        return state == self.GOAL
 
     def cost(self, state, action, state2):
         '''Returns the cost of applying `action` from `state` to `state2`.
@@ -80,9 +100,24 @@ class GameProblem(SearchProblem):
         print('\nMAP: ', self.MAP, '\n')
         print('POSITIONS: ', self.POSITIONS, '\n')
         print('CONFIG: ', self.CONFIG, '\n')
-        #initial_state = (position, bags, deliveries)
-        initial_state = self.POSITIONS['start'][0], self.BAGS, self.POSITIONS['customer2']
-        final_state= (7,0)
+        initial_state = (self.POSITIONS['start'][0], 0, -1)
+        
+        if self.customer3 == 1 and self.created == 0:
+            initial_state[2] = len(self.POSITIONS['customer3'])*3
+            self.created = 1
+        
+        if self.customer2 == 1 and self.created == 0:
+            initial_state[2] = len(self.POSITIONS['customer2'])*2
+            self.created = 1
+        elif self.customer2 == 1 and self.created == 1:
+            initial_state[2] += len(self.POSITIONS['customer2'])*2
+
+        if self.customer1 == 1 and self.created == 0:
+            initial_state[2] += len(self.POSITIONS['customer1'])
+        elif self.customer2 == 1 and self.created == 1:
+            initial_state[2] = len(self.POSITIONS['customer1'])
+        
+        final_state= (self.POSITIONS['start'][0], 0, 0)
         algorithm= simpleai.search.astar
         self.SHOPS=self.POSITIONS['pizza']
         self.CUSTOMERS=self.POSITIONS['customer2']
