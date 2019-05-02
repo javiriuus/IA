@@ -22,7 +22,7 @@ class GameProblem(SearchProblem):
 
     def actions(self, state):
         
-        result=[]
+        actions=[]
 
         position = state[0]
         carried = state[1]
@@ -33,25 +33,25 @@ class GameProblem(SearchProblem):
         West = (position[0]-1, position[1])
         East = (position[0]+1, position[1])
         
-        if North in (self.POSITIONS['street'] or self.SHOPS or self.CUSTOMERS or self.POSITIONS['start']):
-            result.append('North')
-        if South in (self.POSITIONS['street'] or self.SHOPS or self.CUSTOMERS or self.POSITIONS['start']):
-            result.append('South')
-        if West in (self.POSITIONS['street'] or self.SHOPS or self.CUSTOMERS or self.POSITIONS['start']):
-            result.append('West')
-        if East in (self.POSITIONS['street'] or self.SHOPS or self.CUSTOMERS or self.POSITIONS['start']):
-            result.append('East')
+        if North in self.POSITIONS['street'] or North in self.SHOPS or North in self.CUSTOMERS or North in self.POSITIONS['start']:
+            actions.append('North')
+        if South in self.POSITIONS['street'] or South in self.SHOPS or South in self.CUSTOMERS or South in self.POSITIONS['start']:
+            actions.append('South')
+        if West in self.POSITIONS['street'] or West in self.SHOPS or West in self.CUSTOMERS or West in self.POSITIONS['start']:
+            actions.append('West')
+        if East in self.POSITIONS['street'] or East in self.SHOPS or East in self.CUSTOMERS or East in self.POSITIONS['start']:
+            actions.append('East')
         
         if position in self.POSITIONS['pizza'] :
-            result.append('Load')
-            if North in (self.POSITIONS['street'] or self.SHOPS or self.CUSTOMERS or self.POSITIONS['start']):
-                result.append('North')
-            if South in (self.POSITIONS['street'] or self.SHOPS or self.CUSTOMERS or self.POSITIONS['start']):
-                result.append('South')
-            if West in (self.POSITIONS['street'] or self.SHOPS or self.CUSTOMERS or self.POSITIONS['start']):
-                result.append('West')
-            if East in (self.POSITIONS['street'] or self.SHOPS or self.CUSTOMERS or self.POSITIONS['start']):
-                result.append('East')
+            actions.append('Load')
+            if North in self.POSITIONS['street'] or North in self.SHOPS or North in self.CUSTOMERS or North in self.POSITIONS['start']:
+                actions.append('North')
+            if South in self.POSITIONS['street'] or South in self.SHOPS or South in self.CUSTOMERS or South in self.POSITIONS['start']:
+                actions.append('South')
+            if West in self.POSITIONS['street'] or West in self.SHOPS or West in self.CUSTOMERS or West in self.POSITIONS['start']:
+                actions.append('West')
+            if East in self.POSITIONS['street'] or East in self.SHOPS or East in self.CUSTOMERS or East in self.POSITIONS['start']:
+                actions.append('East')
 
         try:
             self.POSITIONS['customer3']
@@ -59,7 +59,7 @@ class GameProblem(SearchProblem):
             pass
         else:
             if position in self.POSITIONS['customer3']:
-                result.append('Deliver')
+                actions.append('Deliver')
         
         try:
             self.POSITIONS['customer2']
@@ -67,7 +67,7 @@ class GameProblem(SearchProblem):
             pass
         else:
             if position in self.POSITIONS['customer2']:
-                result.append('Deliver')
+                actions.append('Deliver')
         
         try:
             self.POSITIONS['customer1']
@@ -75,16 +75,17 @@ class GameProblem(SearchProblem):
             pass
         else:
             if position in self.POSITIONS['customer1']:
-                result.append('Deliver')
+                actions.append('Deliver')
         
         print state
-        print result
-        return result
+        print actions
+        return actions
 
     def result(self, state, action):
         #If on a pizzeria pick up bags
         if state[0] in self.POSITIONS['pizza'] and action == 'Load':
             next_state = (state[0], state[1]+2, state[2])
+	    print "pillo dos pizza"
 
         #If on a house deliver and remove customer from tuple
         #We first check that this type of customer exists
@@ -105,6 +106,7 @@ class GameProblem(SearchProblem):
             if state[0] in self.POSITIONS['customer2'] and state[1]>=2 and action == 'Deliver':
                 self.POSITIONS['customer2'] = self.POSITIONS['customer2'][1:]
                 next_state = (state[0], state[1]-2, state[2]-2)
+		print "dejo las pizzas"
         
         try:
             self.POSITIONS['customer1']
@@ -116,11 +118,6 @@ class GameProblem(SearchProblem):
                 next_state = (state[0], state[1]-1, state[2]-1)
 
         if action == 'South' and ((state[0][0], state[0][1]+1) not in self.POSITIONS ['building']) and state[0][1]+1<self.CONFIG['map_size'][1]:
-            next_state = ((state[0][0], state[0][1]+1), state[1], state[2])
-        elif action == 'North' and ((state[0][0], state[0][1]-1) not in self.POSITIONS ['building']) and state[0][1]-1>=0:
-            next_state = ((state[0][0], state[0][1]-1), state[1], state[2])
-        elif action == 'East' and ((state[0][0]+1, state[0][1]) not in self.POSITIONS ['building']) and state[0][0]+1<self.CONFIG['map_size'][0]:
-            next_state = ((state[0][0]+1, state[0][1]), state[1], state[2])
             next_state = ((state[0][0], state[0][1]+1), state[1], state[2])
         elif action == 'North' and ((state[0][0], state[0][1]-1) not in self.POSITIONS ['building']) and state[0][1]-1>=0:
             next_state = ((state[0][0], state[0][1]-1), state[1], state[2])
