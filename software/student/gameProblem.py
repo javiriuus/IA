@@ -85,7 +85,12 @@ class GameProblem(SearchProblem):
         next_state = (state[0], state[1], state[2])
         #If on a pizzeria pick up bags
         if state[0] in self.POSITIONS['pizza'] and action == 'Load':
-            next_state = (state[0], state[1]+2, state[2])
+            if state[2] > self.CONFIG['maxBags']:
+                next_state = (state[0], self.CONFIG['maxBags'], state[2])
+            elif state[2] <= self.CONFIG['maxBags'] and state[2] == state[1]:
+                pass
+            else:
+                next_state = (state[0], state[2], state[2])
 
         elif action == 'Deliver':
             #If on a house deliver and remove customer from tuple
@@ -107,7 +112,6 @@ class GameProblem(SearchProblem):
                 if state[0] in self.POSITIONS['customer2'] and state[1]>=2 and action == 'Deliver':
                     self.POSITIONS['customer2'] = self.POSITIONS['customer2'][1:]
                     next_state = (state[0], state[1]-2, state[2]-2)
-                    print "dejo las pizzas"
             
             try:
                 self.POSITIONS['customer1']
