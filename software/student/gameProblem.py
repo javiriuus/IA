@@ -82,42 +82,43 @@ class GameProblem(SearchProblem):
         return actions
 
     def result(self, state, action):
+        next_state = (state[0], state[1], state[2])
         #If on a pizzeria pick up bags
         if state[0] in self.POSITIONS['pizza'] and action == 'Load':
             next_state = (state[0], state[1]+2, state[2])
-	    print "pillo dos pizza"
 
-        #If on a house deliver and remove customer from tuple
-        #We first check that this type of customer exists
-        try:
-            self.POSITIONS['customer3']
-        except:
-            pass
-        else:
-            if state[0] in self.POSITIONS['customer3'] and state[1]>=3 and action == 'Deliver':
-                self.POSITIONS['customer3'] = self.POSITIONS['customer3'][1:]
-                next_state = (state[0], state[1]-3, state[2]-3)
-        
-        try:
-            self.POSITIONS['customer2']
-        except:
-            pass
-        else:
-            if state[0] in self.POSITIONS['customer2'] and state[1]>=2 and action == 'Deliver':
-                self.POSITIONS['customer2'] = self.POSITIONS['customer2'][1:]
-                next_state = (state[0], state[1]-2, state[2]-2)
-		print "dejo las pizzas"
-        
-        try:
-            self.POSITIONS['customer1']
-        except:
-            pass
-        else:
-            if state[0] in self.POSITIONS['customer1'] and state[1]>=1 and action == 'Deliver':
-                self.POSITIONS['customer1'] = self.POSITIONS['customer1'][1:]
-                next_state = (state[0], state[1]-1, state[2]-1)
+        elif action == 'Deliver':
+            #If on a house deliver and remove customer from tuple
+            #We first check that this type of customer exists
+            try:
+                self.POSITIONS['customer3']
+            except:
+                pass
+            else:
+                if state[0] in self.POSITIONS['customer3'] and state[1]>=3 and action == 'Deliver':
+                    self.POSITIONS['customer3'] = self.POSITIONS['customer3'][1:]
+                    next_state = (state[0], state[1]-3, state[2]-3)
+            
+            try:
+                self.POSITIONS['customer2']
+            except:
+                pass
+            else:
+                if state[0] in self.POSITIONS['customer2'] and state[1]>=2 and action == 'Deliver':
+                    self.POSITIONS['customer2'] = self.POSITIONS['customer2'][1:]
+                    next_state = (state[0], state[1]-2, state[2]-2)
+                    print "dejo las pizzas"
+            
+            try:
+                self.POSITIONS['customer1']
+            except:
+                pass
+            else:
+                if state[0] in self.POSITIONS['customer1'] and state[1]>=1 and action == 'Deliver':
+                    self.POSITIONS['customer1'] = self.POSITIONS['customer1'][1:]
+                    next_state = (state[0], state[1]-1, state[2]-1)
 
-        if action == 'South' and ((state[0][0], state[0][1]+1) not in self.POSITIONS ['building']) and state[0][1]+1<self.CONFIG['map_size'][1]:
+        elif action == 'South' and ((state[0][0], state[0][1]+1) not in self.POSITIONS ['building']) and state[0][1]+1<self.CONFIG['map_size'][1]:
             next_state = ((state[0][0], state[0][1]+1), state[1], state[2])
         elif action == 'North' and ((state[0][0], state[0][1]-1) not in self.POSITIONS ['building']) and state[0][1]-1>=0:
             next_state = ((state[0][0], state[0][1]-1), state[1], state[2])
