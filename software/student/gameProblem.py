@@ -202,26 +202,26 @@ class GameProblem(SearchProblem):
         else:
             self.customer1 = 1
 
-        if self.customer3 == 1:
+        if self.customer3==1:
             #Three pizzas per customer3
             deliver = len(self.POSITIONS['customer3'])*3
             self.CUSTOMERS=self.POSITIONS['customer3']
             self.created = 1 #The created flag is used to either initialize or add a value to both deliver and self.CUSTOMERS
 
-        if self.customer2 == 1 and self.created == 0:
+        if self.customer2==1 and self.created==0:
             #Two pizzas per customer2
             deliver = len(self.POSITIONS['customer2'])*2
             self.CUSTOMERS=self.POSITIONS['customer2']
             self.created = 1
-        elif self.customer2 == 1 and self.created == 1:
+        elif self.customer2==1 and self.created==1:
             deliver += len(self.POSITIONS['customer2'])*2
             self.CUSTOMERS.append(self.POSITIONS['customer2'])
 
-        if self.customer1 == 1 and self.created == 0:
+        if self.customer1==1 and self.created==1:
             #One pizza per customer1
             deliver += len(self.POSITIONS['customer1'])
             self.CUSTOMERS=self.POSITIONS['customer1']
-        elif self.customer1 == 1 and self.created == 1:
+        elif self.customer1==1 and self.created==0:
             deliver = len(self.POSITIONS['customer1'])
             self.CUSTOMERS.append(self.POSITIONS['customer1'])
 
