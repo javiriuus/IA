@@ -21,18 +21,20 @@ class GameProblem(SearchProblem):
    # --------------- Common functions to a SearchProblem -----------------
 
     def actions(self, state):
-        
+
+        #List of possible actions
         actions=[]
 
+        #Variables of different states
         position = state[0]
-        carried = state[1]
-        deliver = state[2]
-        
+
+        #Next positions in every direction
         North = (position[0], position[1]-1)
         South = (position[0], position[1]+1)
         West = (position[0]-1, position[1])
         East = (position[0]+1, position[1])
-        
+
+        #Add a movement action only if the next position is in a possible square such as a street, a customer or a pizzeria (always inside the borders)
         if North in self.POSITIONS['street'] or North in self.SHOPS or North in self.CUSTOMERS or North in self.POSITIONS['start']:
             actions.append('North')
         if South in self.POSITIONS['street'] or South in self.SHOPS or South in self.CUSTOMERS or South in self.POSITIONS['start']:
@@ -41,9 +43,11 @@ class GameProblem(SearchProblem):
             actions.append('West')
         if East in self.POSITIONS['street'] or East in self.SHOPS or East in self.CUSTOMERS or East in self.POSITIONS['start']:
             actions.append('East')
-        
+
+        #Add Load only if on a pizzeria
         if position in self.POSITIONS['pizza'] :
             actions.append('Load')
+            #Add also movement in order to get put of the pizzeria
             if North in self.POSITIONS['street'] or North in self.SHOPS or North in self.CUSTOMERS or North in self.POSITIONS['start']:
                 actions.append('North')
             if South in self.POSITIONS['street'] or South in self.SHOPS or South in self.CUSTOMERS or South in self.POSITIONS['start']:
@@ -53,75 +57,91 @@ class GameProblem(SearchProblem):
             if East in self.POSITIONS['street'] or East in self.SHOPS or East in self.CUSTOMERS or East in self.POSITIONS['start']:
                 actions.append('East')
 
-        try:
-            self.POSITIONS['customer3']
-        except:
-            pass
-        else:
+        #Add Deliver only if in a house (checking previously if that kind of customer exists)
+        if self.customer3==1:
             if position in self.POSITIONS['customer3']:
                 actions.append('Deliver')
-        
-        try:
-            self.POSITIONS['customer2']
-        except:
-            pass
-        else:
+        if self.customer2==1:
             if position in self.POSITIONS['customer2']:
                 actions.append('Deliver')
-        
-        try:
-            self.POSITIONS['customer1']
-        except:
-            pass
-        else:
+        if self.customer1==1:
             if position in self.POSITIONS['customer1']:
                 actions.append('Deliver')
-        
-        print state
-        print actions
+
         return actions
 
     def result(self, state, action):
+
+        #Default value
         next_state = (state[0], state[1], state[2])
+
         #If on a pizzeria pick up bags
         if state[0] in self.POSITIONS['pizza'] and action == 'Load':
-            if state[2] > self.CONFIG['maxBags']:
+            if state[2] > self.CONFIG['maxBags']: #If there are still more than we can carry pick up the maximum
                 next_state = (state[0], self.CONFIG['maxBags'], state[2])
             elif state[2] <= self.CONFIG['maxBags'] and state[2] == state[1]:
-                pass
+                pass #If we have the total number of pizzas needed don't pick up any
             else:
-                next_state = (state[0], state[2], state[2])
+                next_state = (state[0], state[2], state[2]) #If there are less customers that we can carry pick up the exact amount
+
 
         elif action == 'Deliver':
             #If on a house deliver and remove customer from tuple
-            #We first check that this type of customer exists
-            try:
-                self.POSITIONS['customer3']
-            except:
-                pass
-            else:
+            if self.customer3==1:
                 if state[0] in self.POSITIONS['customer3'] and state[1]>=3 and action == 'Deliver':
+                    self.POSITIONS['customer0'].append(self.POSITIONS['customer3'][0])
                     self.POSITIONS['customer3'] = self.POSITIONS['customer3'][1:]
                     next_state = (state[0], state[1]-3, state[2]-3)
-            
-            try:
-                self.POSITIONS['customer2']
-            except:
-                pass
-            else:
+                #If the customer is going to need one more pizza add it to that list
+                elif state[0] in self.POSITIONS['customer3'] and state[1]==2 and action == 'Deliver':
+                    if self.customer1==1:
+                        self.POSITIONS['customer1'].append(self.POSITIONS['customer3'][0])
+                        self.POSITIONS['customer3'] = self.POSITIONS['customer3'][1:]
+                        next_state = (state[0], state[1]-2, state[2]-2)
+                    else:
+                        #If the list didn't exist, create it
+                        self.POSITIONS.update({'customer1':[]})
+                        self.customer1=1
+                        self.POSITIONS['customer1'].append(self.POSITIONS['customer3'][0])
+                        self.POSITIONS['customer3'] = self.POSITIONS['customer3'][1:]
+                        next_state = (state[0], state[1]-2, state[2]-2)
+                #Same with two more
+                elif state[0] in self.POSITIONS['customer3'] and state[1]==1 and action == 'Deliver':
+                    if self.customer2==1:
+                        self.POSITIONS['customer2'].append(self.POSITIONS['customer3'][0])
+                        self.POSITIONS['customer3'] = self.POSITIONS['customer3'][1:]
+                        next_state = (state[0], state[1]-1, state[2]-1)
+                    else:
+                        self.POSITIONS.update({'customer2':[]})
+                        self.customer2=1
+                        self.POSITIONS['customer2'].append(self.POSITIONS['customer3'][0])
+                        self.POSITIONS['customer3'] = self.POSITIONS['customer3'][1:]
+                        next_state = (state[0], state[1]-1, state[2]-1)
+
+            if self.customer2==1:
                 if state[0] in self.POSITIONS['customer2'] and state[1]>=2 and action == 'Deliver':
+                    self.POSITIONS['customer0'].append(self.POSITIONS['customer2'][0])
                     self.POSITIONS['customer2'] = self.POSITIONS['customer2'][1:]
                     next_state = (state[0], state[1]-2, state[2]-2)
-            
-            try:
-                self.POSITIONS['customer1']
-            except:
-                pass
-            else:
+                elif state[0] in self.POSITIONS['customer2'] and state[1]==1 and action == 'Deliver':
+                    if self.customer1==1:
+                        self.POSITIONS['customer1'].append(self.POSITIONS['customer2'][0])
+                        self.POSITIONS['customer2'] = self.POSITIONS['customer2'][1:]
+                        next_state = (state[0], state[1]-1, state[2]-1)
+                    else:
+                        self.POSITIONS.update({'customer1':[]})
+                        self.customer1=1
+                        self.POSITIONS['customer1'].append(self.POSITIONS['customer2'][0])
+                        self.POSITIONS['customer2'] = self.POSITIONS['customer2'][1:]
+                        next_state = (state[0], state[1]-1, state[2]-1)
+
+            if self.customer1==1:
                 if state[0] in self.POSITIONS['customer1'] and state[1]>=1 and action == 'Deliver':
+                    self.POSITIONS['customer0'].append(self.POSITIONS['customer1'][0])
                     self.POSITIONS['customer1'] = self.POSITIONS['customer1'][1:]
                     next_state = (state[0], state[1]-1, state[2]-1)
 
+        #If action is move and we can move, then move
         elif action == 'South' and ((state[0][0], state[0][1]+1) not in self.POSITIONS ['building']) and state[0][1]+1<self.CONFIG['map_size'][1]:
             next_state = ((state[0][0], state[0][1]+1), state[1], state[2])
         elif action == 'North' and ((state[0][0], state[0][1]-1) not in self.POSITIONS ['building']) and state[0][1]-1>=0:
@@ -130,8 +150,6 @@ class GameProblem(SearchProblem):
             next_state = ((state[0][0]+1, state[0][1]), state[1], state[2])
         elif action == 'West' and ((state[0][0]-1, state[0][1]) not in self.POSITIONS ['building']) and state[0][0]-1>=0:
             next_state = ((state[0][0]-1, state[0][1]) , state[1], state[2])
-        else:
-            next_state = (state[0], state[1], state[2])
 
         return next_state
 
@@ -139,57 +157,59 @@ class GameProblem(SearchProblem):
         return state == self.GOAL
 
     def cost(self, state, action, state2):
-        '''Returns the cost of applying `action` from `state` to `state2`.
-           The returned value is a number (integer or floating point).
-           By default this function returns `1`.
-        '''
-        return 1
+        #One cost per movement
+        if action in ['North', 'South', 'West', 'East']:
+            cost = 1
+        #One cost per bag taken
+        elif action == 'Load':
+            cost = abs(state2[1]-state[1])
+        #One cost per bag delivered
+        else:
+            cost = abs(state[2]-state2[2])
+        return cost
 
     def heuristic(self, state):
-        '''Returns the heuristic for `state`
-        '''
-        return 0
+        #Manhattan heuristic
+        return abs(state[0][0] - self.GOAL[0][0]) + abs(state[0][1] - self.GOAL[0][1])
 
-
+    #Initialize everything in the problem
     def setup (self):
-        '''This method must create the initial state, final state (if desired) and specify the algorithm to be used.
-           This values are later stored as globals that are used when calling the search algorithm.
-           final state is optional because it is only used inside the is_goal() method
-
-           It also must set the values of the object attributes that the methods need, as for example, self.SHOPS or self.MAXBAGS
-        '''
-
         print('\nMAP: ', self.MAP, '\n')
         print('POSITIONS: ', self.POSITIONS, '\n')
         print('CONFIG: ', self.CONFIG, '\n')
-        
+
+        #Check if customer3 exists
         try:
             self.POSITIONS['customer3']
         except:
             self.customer3 = 0
         else:
-            self.customer3 = 1 #Exists
-        
+            self.customer3 = 1
+
+        #Check if customer2 exists
         try:
             self.POSITIONS['customer2']
         except:
             self.customer2 = 0
         else:
-            self.customer2 = 1 #Exists    
-        
+            self.customer2 = 1
+
+        #Check if customer1 exists
         try:
             self.POSITIONS['customer1']
         except:
             self.customer1 = 0
         else:
-            self.customer1 = 1 #Exists
+            self.customer1 = 1
 
-        if self.customer3 == 1 and self.created == 0:
+        if self.customer3 == 1:
+            #Three pizzas per customer3
             deliver = len(self.POSITIONS['customer3'])*3
             self.CUSTOMERS=self.POSITIONS['customer3']
-            self.created = 1
-        
+            self.created = 1 #The created flag is used to either initialize or add a value to both deliver and self.CUSTOMERS
+
         if self.customer2 == 1 and self.created == 0:
+            #Two pizzas per customer2
             deliver = len(self.POSITIONS['customer2'])*2
             self.CUSTOMERS=self.POSITIONS['customer2']
             self.created = 1
@@ -198,29 +218,52 @@ class GameProblem(SearchProblem):
             self.CUSTOMERS.append(self.POSITIONS['customer2'])
 
         if self.customer1 == 1 and self.created == 0:
+            #One pizza per customer1
             deliver += len(self.POSITIONS['customer1'])
             self.CUSTOMERS=self.POSITIONS['customer1']
         elif self.customer1 == 1 and self.created == 1:
             deliver = len(self.POSITIONS['customer1'])
             self.CUSTOMERS.append(self.POSITIONS['customer1'])
-        
+
+        #Add customers with no pizza left
+        self.POSITIONS.update({'customer0':[]})
+
         initial_state = (self.POSITIONS['start'][0], 0, deliver)
-        final_state= (self.POSITIONS['start'][0], 0, 0)
+        final_state= (self.POSITIONS['start'][0], 0, 0) #Final state should be the same as the initial state but with every pizza delivered
         algorithm= simpleai.search.astar
         self.SHOPS=self.POSITIONS['pizza']
         return initial_state,final_state,algorithm
 
     def printState (self,state):
-        '''Return a string to pretty-print the state '''
-        pps=''
-        return (pps)
+
+        #Print every information inside state in a clean way
+        return '\n\n ----- STATE -----\n\nPosition: ' + str(state[0]) + '\nBags: ' + str(state[1]) + '\nRemaining deliveries: ' + str(state[2])
 
     def getPendingRequests (self,state):
-        ''' Return the number of pending requests in the given position (0-N). 
-            MUST return None if the position is not a customer.
-            This information is used to show the proper customer image.
-        '''
-        return None
+
+        #Default value
+        pending = None
+
+        #If there are customer3 and we are in one return 3
+        if self.customer3==1:
+            if state[0] in self.POSITIONS['customer3']:
+                pending = 3
+
+        #If there are customer2 and we are in one return 2
+        if self.customer2==1:
+            if state[0] in self.POSITIONS['customer2']:
+                pending = 2
+
+        #If there are customer1 and we are in one return 1
+        if self.customer1==1:
+            if state[0] in self.POSITIONS['customer1']:
+                pending = 1
+
+        #If on a satisfied customer return 0
+        if state[0] in self.POSITIONS['customer0']:
+            pending = 0
+
+        return pending
 
     # -------------------------------------------------------------- #
     # --------------- DO NOT EDIT BELOW THIS LINE  ----------------- #
@@ -230,7 +273,7 @@ class GameProblem(SearchProblem):
         '''Returns an attribute value for a given position of the map
            position is a tuple (x,y)
            attributeName is a string
-           
+
            Returns:
                None if the attribute does not exist
                Value of the attribute otherwise
@@ -247,7 +290,7 @@ class GameProblem(SearchProblem):
         if pendingItems >= 0:
             stateData['newType']='customer{}'.format(pendingItems)
         return stateData
-        
+
     # THIS INITIALIZATION FUNCTION HAS TO BE CALLED BEFORE THE SEARCH
     def initializeProblem(self,map,positions,conf,aiBaseName):
         self.MAP=map
@@ -259,14 +302,14 @@ class GameProblem(SearchProblem):
         if initial_state == False:
             print ('-- INITIALIZATION FAILED')
             return True
-      
+
         self.INITIAL_STATE=initial_state
         self.GOAL=final_state
         self.ALGORITHM=algorithm
         super(GameProblem,self).__init__(self.INITIAL_STATE)
-            
+
         print ('-- INITIALIZATION OK')
         return True
-        
+
     # END initializeProblem 
 
