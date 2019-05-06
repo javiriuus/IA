@@ -67,7 +67,7 @@ class GameProblem(SearchProblem):
         if self.customer1==1:
             if position in self.POSITIONS['customer1']:
                 actions.append('Deliver')
-
+        
         return actions
 
     def result(self, state, action):
@@ -82,7 +82,7 @@ class GameProblem(SearchProblem):
             elif state[2] <= self.CONFIG['maxBags'] and state[2] == state[1]:
                 pass #If we have the total number of pizzas needed don't pick up any
             else:
-                next_state = (state[0], state[2], state[2]) #If there are less customers that we can carry pick up the exact amount
+                next_state = (state[0], state[2]-state[1], state[2]) #If there are less customers that we can carry pick up the exact amount
 
 
         elif action == 'Deliver':
@@ -140,6 +140,7 @@ class GameProblem(SearchProblem):
                     self.POSITIONS['customer0'].append(self.POSITIONS['customer1'][0])
                     self.POSITIONS['customer1'] = self.POSITIONS['customer1'][1:]
                     next_state = (state[0], state[1]-1, state[2]-1)
+            print "He entregado en " + str(state[0])
 
         #If action is move and we can move, then move
         elif action == 'South' and ((state[0][0], state[0][1]+1) not in self.POSITIONS ['building']) and state[0][1]+1<self.CONFIG['map_size'][1]:
@@ -150,7 +151,8 @@ class GameProblem(SearchProblem):
             next_state = ((state[0][0]+1, state[0][1]), state[1], state[2])
         elif action == 'West' and ((state[0][0]-1, state[0][1]) not in self.POSITIONS ['building']) and state[0][0]-1>=0:
             next_state = ((state[0][0]-1, state[0][1]) , state[1], state[2])
-
+        print next_state
+        print action
         return next_state
 
     def is_goal(self, state):
