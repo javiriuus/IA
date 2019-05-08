@@ -123,9 +123,10 @@ class GameProblem(SearchProblem):
             if self.customer2==1:
                 if state[0] in self.POSITIONS['customer2'] and state[1]>=2 and action == 'Deliver':
                     self.POSITIONS['customer0'].append(self.POSITIONS['customer2'][0])
-                    #self.POSITIONS['customer2'].remove(state[0])
-                    self.POSITIONS['customer2'] = self.POSITIONS['customer2'][1:]
+                    self.POSITIONS['customer2'].remove(state[0])
+                    #self.POSITIONS['customer2'] = self.POSITIONS['customer2'][1:]
                     next_state = (state[0], state[1]-2, state[2]-2)
+                    print self.POSITIONS
                 elif state[0] in self.POSITIONS['customer2'] and state[1]==1 and action == 'Deliver':
                     if self.customer1==1:
                         self.POSITIONS['customer1'].append(self.POSITIONS['customer2'][0])
