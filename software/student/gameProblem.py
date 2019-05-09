@@ -67,21 +67,21 @@ class GameProblem(SearchProblem):
         if self.customer1==1:
             if position in self.POSITIONS['customer1']:
                 actions.append('Deliver')
-        
+
         return actions
 
     def result(self, state, action):
 
         #Default value
-        next_state = (state[0], state[1], state[2], state[3])
+        next_state = (state[0], state[1], state[2], state[3], state[4], state[5])
 
         #If on a pizzeria pick up bags
         if state[0] in self.POSITIONS['pizza'] and action == 'Load':
             if state[2] > self.CONFIG['maxBags']: #If there are still more than we can carry pick up the maximum
-                next_state = (state[0], self.CONFIG['maxBags'], state[2], state[3])
+                next_state = (state[0], self.CONFIG['maxBags'], state[2], state[3], state[4], state[5])
                 print 'He pillado una pizza'
             elif state[2] <= self.CONFIG['maxBags'] and state[2] != state[1]:
-                next_state = (state[0], state[2], state[2], state[3]) #If there are less customers that we can carry pick up the exact amount
+                next_state = (state[0], state[2], state[2], state[3], state[4], state[5]) #If there are less customers that we can carry pick up the exact amount
                 print 'He pilladi las pizzas justas'
 
 
@@ -89,72 +89,35 @@ class GameProblem(SearchProblem):
             #If on a house deliver and remove customer from tuple
             if self.customer3==1:
                 if state[0] in self.POSITIONS['customer3'] and state[1]>=3 and action == 'Deliver':
-                    self.POSITIONS['customer0'].append(self.POSITIONS['customer3'][0])
-                    self.POSITIONS['customer3'].remove(state[0])
-                    next_state = (state[0], state[1]-3, state[2]-3, state[3].remove(state[0]))
+                    next_state = (state[0], state[1]-3, state[2]-3, state[3], state[4], state[5][:state[5].index(state[0])] + state[5][state[5].index(state[0])+1:])
                 #If the customer is going to need one more pizza add it to that list
                 elif state[0] in self.POSITIONS['customer3'] and state[1]==2 and action == 'Deliver':
-                    if self.customer1==1:
-                        self.POSITIONS['customer1'].append(self.POSITIONS['customer3'][0])
-                        print 'Anadido a customer1'
-                        self.POSITIONS['customer3'].remove(state[0])
-                        next_state = (state[0], state[1]-2, state[2]-2, state[3])
-                    else:
-                        #If the list didn't exist, create it
-                        self.POSITIONS.update({'customer1':[]})
-                        self.customer1=1
-                        self.POSITIONS['customer1'].append(self.POSITIONS['customer3'][0])
-                        print 'Anadido a customer1'
-                        self.POSITIONS['customer3'].remove(state[0])
-                        next_state = (state[0], state[1]-2, state[2]-2, state[3])
+                    next_state = (state[0], state[1]-2, state[2]-2, state[3] + state[0], state[4], state[5][:state[5].index(state[0])] + state[5][state[5].index(state[0])+1:])
                 #Same with two more
                 elif state[0] in self.POSITIONS['customer3'] and state[1]==1 and action == 'Deliver':
-                    if self.customer2==1:
-                        self.POSITIONS['customer2'].append(self.POSITIONS['customer3'][0])
-                        self.POSITIONS['customer3'].remove(state[0])
-                        next_state = (state[0], state[1]-1, state[2]-1, state[3])
-                    else:
-                        self.POSITIONS.update({'customer2':[]})
-                        self.customer2=1
-                        self.POSITIONS['customer2'].append(self.POSITIONS['customer3'][0])
-                        self.POSITIONS['customer3'].remove(state[0])
-                        next_state = (state[0], state[1]-1, state[2]-1, state[3])
+                    next_state = (state[0], state[1]-1, state[2]-1, state[3], state[4] + state[0], state[5][:state[5].index(state[0])] + state[5][state[5].index(state[0])+1:])
 
             if self.customer2==1:
                 if state[0] in self.POSITIONS['customer2'] and state[1]>=2 and action == 'Deliver':
-                    self.POSITIONS['customer0'].append(self.POSITIONS['customer2'][0])
-                    self.POSITIONS['customer2'].remove(state[0])
-                    #self.POSITIONS['customer2'] = self.POSITIONS['customer2'][1:]
-                    next_state = (state[0], state[1]-2, state[2]-2, state[3].remove(state[0]))
+                    next_state = (state[0], state[1]-2, state[2]-2, state[3], state[4][:state[4].index(state[0])] + state[4][state[4].index(state[0])+1:], state[5])
                     print self.POSITIONS
                 elif state[0] in self.POSITIONS['customer2'] and state[1]==1 and action == 'Deliver':
-                    if self.customer1==1:
-                        self.POSITIONS['customer1'].append(self.POSITIONS['customer2'][0])
-                        self.POSITIONS['customer2'].remove(state[0])
-                        next_state = (state[0], state[1]-1, state[2]-1, state[3])
-                    else:
-                        self.POSITIONS.update({'customer1':[]})
-                        self.customer1=1
-                        self.POSITIONS['customer1'].append(self.POSITIONS['customer2'][0])
-                        self.POSITIONS['customer2'].remove(state[0])
-                        next_state = (state[0], state[1]-1, state[2]-1, state[3])
+                    next_state = (state[0], state[1]-1, state[2]-1, state[3] + state[0], state[4][:state[4].index(state[0])] + state[4][state[4].index(state[0])+1:], state[5])
 
             if self.customer1==1:
                 if state[0] in self.POSITIONS['customer1'] and state[1]>=1 and action == 'Deliver':
-                    self.POSITIONS['customer0'].append(self.POSITIONS['customer1'][0])
-                    self.POSITIONS['customer1'].remove(state[0])
-                    next_state = (state[0], state[1]-1, state[2]-1, state[3].remove(state[0]))
+                    next_state = (state[0], state[1]-1, state[2]-1, state[3][:state[3].index(state[0])] + state[3][state[3].index(state[0])+1:], state[4], state[5])
             print "He entregado en " + str(state[0])
 
         #If action is move and we can move, then move
         elif action == 'South' and ((state[0][0], state[0][1]+1) not in self.POSITIONS ['building']) and state[0][1]+1<self.CONFIG['map_size'][1]:
-            next_state = ((state[0][0], state[0][1]+1), state[1], state[2], state[3])
+            next_state = ((state[0][0], state[0][1]+1), state[1], state[2], state[3], state[4], state[5])
         elif action == 'North' and ((state[0][0], state[0][1]-1) not in self.POSITIONS ['building']) and state[0][1]-1>=0:
-            next_state = ((state[0][0], state[0][1]-1), state[1], state[2], state[3])
+            next_state = ((state[0][0], state[0][1]-1), state[1], state[2], state[3], state[4], state[5])
         elif action == 'East' and ((state[0][0]+1, state[0][1]) not in self.POSITIONS ['building']) and state[0][0]+1<self.CONFIG['map_size'][0]:
-            next_state = ((state[0][0]+1, state[0][1]), state[1], state[2], state[3])
+            next_state = ((state[0][0]+1, state[0][1]), state[1], state[2], state[3], state[4], state[5])
         elif action == 'West' and ((state[0][0]-1, state[0][1]) not in self.POSITIONS ['building']) and state[0][0]-1>=0:
-            next_state = ((state[0][0]-1, state[0][1]) , state[1], state[2], state[3])
+            next_state = ((state[0][0]-1, state[0][1]) , state[1], state[2], state[3], state[4], state[5])
         print next_state
         print action
         return next_state
@@ -203,34 +166,32 @@ class GameProblem(SearchProblem):
         else:
             self.customer1 = 1
 
+        initial_state=(self.POSITIONS['start'][0], 0, 0, (), (), ())
+
         if self.customer3==1:
             #Three pizzas per customer3
-            deliver = len(self.POSITIONS['customer3'])*3
             self.CUSTOMERS=self.POSITIONS['customer3']
+            initial_state =(initial_state[0], initial_state[1], initial_state[2] + len(self.POSITIONS['customer3'])*3, initial_state[3], initial_state[4], tuple(self.POSITIONS['customer3']))
             self.created = 1 #The created flag is used to either initialize or add a value to both deliver and self.CUSTOMERS
 
         if self.customer2==1 and self.created==0:
             #Two pizzas per customer2
-            deliver = len(self.POSITIONS['customer2'])*2
             self.CUSTOMERS=self.POSITIONS['customer2']
+            initial_state =(initial_state[0], initial_state[1], initial_state[2] + len(self.POSITIONS['customer2'])*2, initial_state[3], tuple(self.POSITIONS['customer2']), initial_state[5])
             self.created = 1
         elif self.customer2==1 and self.created==1:
-            deliver += len(self.POSITIONS['customer2'])*2
             self.CUSTOMERS.append(self.POSITIONS['customer2'])
+            initial_state =(initial_state[0], initial_state[1], initial_state[2] + len(self.POSITIONS['customer2'])*2, initial_state[3], tuple(self.POSITIONS['customer2']), initial_state[5])
 
         if self.customer1==1 and self.created==0:
             #One pizza per customer1
-            deliver = len(self.POSITIONS['customer1'])
             self.CUSTOMERS=self.POSITIONS['customer1']
+            initial_state =(initial_state[0], initial_state[1], initial_state[2] + len(self.POSITIONS['customer1']), tuple(self.POSITIONS['customer1']), initial_state[4], initial_state[5])
         elif self.customer1==1 and self.created==1:
-            deliver += len(self.POSITIONS['customer1'])
             self.CUSTOMERS.append(self.POSITIONS['customer1'])
+            initial_state =(initial_state[0], initial_state[1], initial_state[2] + len(self.POSITIONS['customer1']), tuple(self.POSITIONS['customer1']), initial_state[4], initial_state[5])
 
-        #Add customers with no pizza left
-        self.POSITIONS.update({'customer0':[]})
-
-        initial_state = (self.POSITIONS['start'][0], 0, deliver, list(self.CUSTOMERS))
-        final_state= (self.POSITIONS['start'][0], 0, 0, []) #Final state should be the same as the initial state but with every pizza delivered
+        final_state= (self.POSITIONS['start'][0], 0, 0, (), (), ()) #Final state should be the same as the initial state but with every pizza delivered
         algorithm= simpleai.search.astar
         self.SHOPS=self.POSITIONS['pizza']
         return initial_state,final_state,algorithm
@@ -246,23 +207,21 @@ class GameProblem(SearchProblem):
         pending = None
 
         #If there are customer3 and we are in one return 3
-        if self.customer3==1:
-            if state[0] in self.POSITIONS['customer3']:
+        if state[0] in state[5]:
                 pending = 3
 
         #If there are customer2 and we are in one return 2
-        if self.customer2==1:
-            if state[0] in self.POSITIONS['customer2']:
+        elif state[0] in state[4]:
                 pending = 2
 
         #If there are customer1 and we are in one return 1
-        if self.customer1==1:
-            if state[0] in self.POSITIONS['customer1']:
+        elif state[0] in state[3]:
                 pending = 1
 
         #If on a satisfied customer return 0
-        if state[0] in self.POSITIONS['customer0']:
-            pending = 0
+        else:
+            if state[0] not in self.POSITIONS['street'] and state[0] not in self.POSITIONS['pizza'] and state[0] not in self.POSITIONS['start']:
+                pending = 0
 
         return pending
 
@@ -312,5 +271,5 @@ class GameProblem(SearchProblem):
         print ('-- INITIALIZATION OK')
         return True
 
-    # END initializeProblem 
+    # END initializeProblem
 
