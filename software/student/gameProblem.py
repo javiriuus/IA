@@ -88,24 +88,24 @@ class GameProblem(SearchProblem):
         elif action == 'Deliver':
             #If on a house deliver and remove customer from tuple
             if self.customer3==1:
-                if state[0] in self.POSITIONS['customer3'] and state[1]>=3 and action == 'Deliver':
+                if state[0] in state[5] and state[1]>=3 and action == 'Deliver':
                     next_state = (state[0], state[1]-3, state[2]-3, state[3], state[4], state[5][:state[5].index(state[0])] + state[5][state[5].index(state[0])+1:])
                 #If the customer is going to need one more pizza add it to that list
-                elif state[0] in self.POSITIONS['customer3'] and state[1]==2 and action == 'Deliver':
+                elif state[0] in state[5] and state[1]==2 and action == 'Deliver':
                     next_state = (state[0], state[1]-2, state[2]-2, state[3] + state[0], state[4], state[5][:state[5].index(state[0])] + state[5][state[5].index(state[0])+1:])
                 #Same with two more
-                elif state[0] in self.POSITIONS['customer3'] and state[1]==1 and action == 'Deliver':
-                    next_state = (state[0], state[1]-1, state[2]-1, state[3], state[4] + state[0], state[5][:state[5].index(state[0])] + state[5][state[5].index(state[0])+1:])
-
+                elif state[0] in state[5]  and state[1]==1 and action == 'Deliver':
+                   next_state = (state[0], state[1]-1, state[2]-1, state[3], state[4] + state[0], state[5][:state[5].index(state[0])] + state[5][state[5].index(state[0])+1:])
+		    
             if self.customer2==1:
-                if state[0] in self.POSITIONS['customer2'] and state[1]>=2 and action == 'Deliver':
-                    next_state = (state[0], state[1]-2, state[2]-2, state[3], state[4][:state[4].index(state[0])] + state[4][state[4].index(state[0])+1:], state[5])
-                    print self.POSITIONS
-                elif state[0] in self.POSITIONS['customer2'] and state[1]==1 and action == 'Deliver':
+                if state[0] in state[4]  and state[1]>=2 and action == 'Deliver':
+		    next_state = (state[0], state[1]-2, state[2]-2, state[3], state[4][:state[4].index(state[0])] + state[4][state[4].index(state[0])+1:], state[5])
+		    print self.POSITIONS
+                elif state[0] in state[4]  and state[1]==1 and action == 'Deliver':
                     next_state = (state[0], state[1]-1, state[2]-1, state[3] + state[0], state[4][:state[4].index(state[0])] + state[4][state[4].index(state[0])+1:], state[5])
 
             if self.customer1==1:
-                if state[0] in self.POSITIONS['customer1'] and state[1]>=1 and action == 'Deliver':
+                if state[0] in state[3]  and state[1]>=1 and action == 'Deliver':
                     next_state = (state[0], state[1]-1, state[2]-1, state[3][:state[3].index(state[0])] + state[3][state[3].index(state[0])+1:], state[4], state[5])
             print "He entregado en " + str(state[0])
 
