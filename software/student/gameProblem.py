@@ -16,6 +16,8 @@ class GameProblem(SearchProblem):
     customer3 = 0
     customer2 = 0
     customer1 = 0
+    customer22 = 0
+    customer12 = 0
     created = 0
 
    # --------------- Common functions to a SearchProblem -----------------
@@ -59,13 +61,13 @@ class GameProblem(SearchProblem):
 
         #Add Deliver only if in a house (checking previously if that kind of customer exists)
         if self.customer3==1:
-            if position in self.POSITIONS['customer3']:
+            if position in state[5]:
                 actions.append('Deliver')
         if self.customer2==1:
-            if position in self.POSITIONS['customer2']:
+            if position in state[4]:
                 actions.append('Deliver')
         if self.customer1==1:
-            if position in self.POSITIONS['customer1']:
+            if position in state[3]:
                 actions.append('Deliver')
 
         return actions
@@ -79,35 +81,43 @@ class GameProblem(SearchProblem):
         if state[0] in self.POSITIONS['pizza'] and action == 'Load':
             if state[2] > self.CONFIG['maxBags']: #If there are still more than we can carry pick up the maximum
                 next_state = (state[0], self.CONFIG['maxBags'], state[2], state[3], state[4], state[5])
-                print 'He pillado una pizza'
             elif state[2] <= self.CONFIG['maxBags'] and state[2] != state[1]:
                 next_state = (state[0], state[2], state[2], state[3], state[4], state[5]) #If there are less customers that we can carry pick up the exact amount
-                print 'He pilladi las pizzas justas'
 
 
         elif action == 'Deliver':
+            print state
             #If on a house deliver and remove customer from tuple
             if self.customer3==1:
                 if state[0] in state[5] and state[1]>=3 and action == 'Deliver':
                     next_state = (state[0], state[1]-3, state[2]-3, state[3], state[4], state[5][:state[5].index(state[0])] + state[5][state[5].index(state[0])+1:])
                 #If the customer is going to need one more pizza add it to that list
                 elif state[0] in state[5] and state[1]==2 and action == 'Deliver':
-                    next_state = (state[0], state[1]-2, state[2]-2, state[3] + state[0], state[4], state[5][:state[5].index(state[0])] + state[5][state[5].index(state[0])+1:])
+                    self.customer12=1
+                    if len(state[3])==0:
+                        next_state = (state[0], state[1]-2, state[2]-2, state[3] + (state[0],), state[4], state[5][:state[5].index(state[0])] + state[5][state[5].index(state[0])+1:])
+                    elif len(state[3])>0:
+                        next_state = (state[0], state[1]-2, state[2]-2, (state[3],) + (state[0],), state[4], state[5][:state[5].index(state[0])] + state[5][state[5].index(state[0])+1:])
                 #Same with two more
                 elif state[0] in state[5]  and state[1]==1 and action == 'Deliver':
-                   next_state = (state[0], state[1]-1, state[2]-1, state[3], state[4] + state[0], state[5][:state[5].index(state[0])] + state[5][state[5].index(state[0])+1:])
-		    
-            if self.customer2==1:
+                    self.customer22=1
+                    if len(state[4])==0:
+                        next_state = (state[0], state[1]-1, state[2]-1, state[3], state[4] + (state[0],), state[5][:state[5].index(state[0])] + state[5][state[5].index(state[0])+1:])
+                    elif len(state[4])>0:
+                        next_state = (state[0], state[1]-1, state[2]-1, state[3], (state[4],) + (state[0],), state[5][:state[5].index(state[0])] + state[5][state[5].index(state[0])+1:])
+            if self.customer22==1:
                 if state[0] in state[4]  and state[1]>=2 and action == 'Deliver':
-		    next_state = (state[0], state[1]-2, state[2]-2, state[3], state[4][:state[4].index(state[0])] + state[4][state[4].index(state[0])+1:], state[5])
-		    print self.POSITIONS
+                    next_state = (state[0], state[1]-2, state[2]-2, state[3], state[4][:state[4].index(state[0])] + state[4][state[4].index(state[0])+1:], state[5])
                 elif state[0] in state[4]  and state[1]==1 and action == 'Deliver':
-                    next_state = (state[0], state[1]-1, state[2]-1, state[3] + state[0], state[4][:state[4].index(state[0])] + state[4][state[4].index(state[0])+1:], state[5])
+                    self.customer12=1
+                    if len(state[3])==0:
+                        next_state = (state[0], state[1]-1, state[2]-1, state[3] + (state[0],), state[4][:state[4].index(state[0])] + state[4][state[4].index(state[0])+1:], state[5])
+                    elif len(state[3])>0:
+                        next_state = (state[0], state[1]-1, state[2]-1, (state[3],) + (state[0],), state[4][:state[4].index(state[0])] + state[4][state[4].index(state[0])+1:], state[5])
 
-            if self.customer1==1:
+            if self.customer12==1:
                 if state[0] in state[3]  and state[1]>=1 and action == 'Deliver':
                     next_state = (state[0], state[1]-1, state[2]-1, state[3][:state[3].index(state[0])] + state[3][state[3].index(state[0])+1:], state[4], state[5])
-            print "He entregado en " + str(state[0])
 
         #If action is move and we can move, then move
         elif action == 'South' and ((state[0][0], state[0][1]+1) not in self.POSITIONS ['building']) and state[0][1]+1<self.CONFIG['map_size'][1]:
@@ -118,8 +128,6 @@ class GameProblem(SearchProblem):
             next_state = ((state[0][0]+1, state[0][1]), state[1], state[2], state[3], state[4], state[5])
         elif action == 'West' and ((state[0][0]-1, state[0][1]) not in self.POSITIONS ['building']) and state[0][0]-1>=0:
             next_state = ((state[0][0]-1, state[0][1]) , state[1], state[2], state[3], state[4], state[5])
-        print next_state
-        print action
         return next_state
 
     def is_goal(self, state):
@@ -157,6 +165,7 @@ class GameProblem(SearchProblem):
             self.customer2 = 0
         else:
             self.customer2 = 1
+            self.customer22=1
 
         #Check if customer1 exists
         try:
@@ -165,6 +174,7 @@ class GameProblem(SearchProblem):
             self.customer1 = 0
         else:
             self.customer1 = 1
+            self.customer12=1
 
         initial_state=(self.POSITIONS['start'][0], 0, 0, (), (), ())
 
