@@ -37,13 +37,17 @@ class GameProblem(SearchProblem):
         East = (position[0]+1, position[1])
 
         #Add a movement action only if the next position is in a possible square such as a street, a customer or a pizzeria (always inside the borders)
-        if North in self.POSITIONS['street'] or North in self.SHOPS or North in self.CUSTOMERS or North in self.POSITIONS['start']:
+       # if North in self.POSITIONS['street'] or North in self.SHOPS or North in self.CUSTOMERS or North in self.POSITIONS['start']:
+        if North not in self.POSITIONS['building']:  
             actions.append('North')
-        if South in self.POSITIONS['street'] or South in self.SHOPS or South in self.CUSTOMERS or South in self.POSITIONS['start']:
+       # if South in self.POSITIONS['street'] or South in self.SHOPS or South in self.CUSTOMERS or South in self.POSITIONS['start']:
+        if South not in self.POSITIONS['building']: 
             actions.append('South')
-        if West in self.POSITIONS['street'] or West in self.SHOPS or West in self.CUSTOMERS or West in self.POSITIONS['start']:
+       # if West in self.POSITIONS['street'] or West in self.SHOPS or West in self.CUSTOMERS or West in self.POSITIONS['start']:
+        if West not in self.POSITIONS['building']:
             actions.append('West')
-        if East in self.POSITIONS['street'] or East in self.SHOPS or East in self.CUSTOMERS or East in self.POSITIONS['start']:
+      #  if East in self.POSITIONS['street'] or East in self.SHOPS or East in self.CUSTOMERS or East in self.POSITIONS['start']:
+        if East not in self.POSITIONS['building']:
             actions.append('East')
 
         #Add Load only if on a pizzeria
@@ -61,13 +65,14 @@ class GameProblem(SearchProblem):
 
         #Add Deliver only if in a house (checking previously if that kind of customer exists)
         if self.customer3==1:
-            if position in state[5]:
+            if state[0] in state[5]:
                 actions.append('Deliver')
         if self.customer2==1:
-            if position in state[4]:
+            if state[0] in  state[4]:
                 actions.append('Deliver')
         if self.customer1==1:
-            if position in state[3]:
+            if state[0] in state[3]:
+		print state[3]
                 actions.append('Deliver')
 
         return actions
@@ -94,32 +99,23 @@ class GameProblem(SearchProblem):
                 #If the customer is going to need one more pizza add it to that list
                 elif state[0] in state[5] and state[1]==2 and action == 'Deliver':
                     self.customer12=1
-                    if len(state[3])==0:
-                        next_state = (state[0], state[1]-2, state[2]-2, state[3] + (state[0],), state[4], state[5][:state[5].index(state[0])] + state[5][state[5].index(state[0])+1:])
-                    elif len(state[3])>0:
-                        next_state = (state[0], state[1]-2, state[2]-2, (state[3],) + (state[0],), state[4], state[5][:state[5].index(state[0])] + state[5][state[5].index(state[0])+1:])
+                    next_state = (state[0], state[1]-2, state[2]-2,state[3] +(state[0],), state[4], state[5][:state[5].index(state[0])] + state[5][state[5].index(state[0])+1:])
                 #Same with two more
                 elif state[0] in state[5]  and state[1]==1 and action == 'Deliver':
                     self.customer22=1
-                    if len(state[4])==0:
-                        next_state = (state[0], state[1]-1, state[2]-1, state[3], state[4] + (state[0],), state[5][:state[5].index(state[0])] + state[5][state[5].index(state[0])+1:])
-                    elif len(state[4])>0:
-                        next_state = (state[0], state[1]-1, state[2]-1, state[3], (state[4],) + (state[0],), state[5][:state[5].index(state[0])] + state[5][state[5].index(state[0])+1:])
+                    next_state = (state[0], state[1]-1, state[2]-1, state[3], state[4] + (state[0],), state[5][:state[5].index(state[0])] + state[5][state[5].index(state[0])+1:])
             if self.customer22==1:
                 if state[0] in state[4]  and state[1]>=2 and action == 'Deliver':
                     next_state = (state[0], state[1]-2, state[2]-2, state[3], state[4][:state[4].index(state[0])] + state[4][state[4].index(state[0])+1:], state[5])
                 elif state[0] in state[4]  and state[1]==1 and action == 'Deliver':
                     self.customer12=1
-                    if len(state[3])==0:
-                        next_state = (state[0], state[1]-1, state[2]-1, state[3] + (state[0],), state[4][:state[4].index(state[0])] + state[4][state[4].index(state[0])+1:], state[5])
-                    elif len(state[3])>0:
-                        next_state = (state[0], state[1]-1, state[2]-1, (state[3],) + (state[0],), state[4][:state[4].index(state[0])] + state[4][state[4].index(state[0])+1:], state[5])
+                    next_state = (state[0], state[1]-1, state[2]-1, state[3] + (state[0],), state[4][:state[4].index(state[0])] + state[4][state[4].index(state[0])+1:], state[5])
 
             if self.customer12==1:
                 if state[0] in state[3]  and state[1]>=1 and action == 'Deliver':
                     next_state = (state[0], state[1]-1, state[2]-1, state[3][:state[3].index(state[0])] + state[3][state[3].index(state[0])+1:], state[4], state[5])
-
-        #If action is move and we can move, then move
+		    print "nex_state: " + str(next_state)       
+  #If action is move and we can move, then move
         elif action == 'South' and ((state[0][0], state[0][1]+1) not in self.POSITIONS ['building']) and state[0][1]+1<self.CONFIG['map_size'][1]:
             next_state = ((state[0][0], state[0][1]+1), state[1], state[2], state[3], state[4], state[5])
         elif action == 'North' and ((state[0][0], state[0][1]-1) not in self.POSITIONS ['building']) and state[0][1]-1>=0:
@@ -167,6 +163,7 @@ class GameProblem(SearchProblem):
             self.customer2 = 1
             self.customer22=1
 
+
         #Check if customer1 exists
         try:
             self.POSITIONS['customer1']
@@ -175,6 +172,7 @@ class GameProblem(SearchProblem):
         else:
             self.customer1 = 1
             self.customer12=1
+
 
         initial_state=(self.POSITIONS['start'][0], 0, 0, (), (), ())
 
