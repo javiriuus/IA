@@ -19,11 +19,6 @@ class GameProblem(SearchProblem):
     customer22 = 0
     customer12 = 0
     created = 0
-    forest = 0
-    hill = 0
-    plain = 0
-    desert = 0
-    sea = 0
 
    # --------------- Common functions to a SearchProblem -----------------
 
@@ -43,16 +38,16 @@ class GameProblem(SearchProblem):
 
         #Add a movement action only if the next position is in a possible square such as a street, a customer or a pizzeria (always inside the borders)
        # if North in self.POSITIONS['street'] or North in self.SHOPS or North in self.CUSTOMERS or North in self.POSITIONS['start']:
-        if North not in self.POSITIONS['building'] or North not in self.POSITIONS['sea']:  
+        if North not in self.POSITIONS['building']:  
             actions.append('North')
        # if South in self.POSITIONS['street'] or South in self.SHOPS or South in self.CUSTOMERS or South in self.POSITIONS['start']:
-        if South not in self.POSITIONS['building'] or South not in self.POSITIONS['sea']: 
+        if South not in self.POSITIONS['building']: 
             actions.append('South')
        # if West in self.POSITIONS['street'] or West in self.SHOPS or West in self.CUSTOMERS or West in self.POSITIONS['start']:
-        if West not in self.POSITIONS['building'] or West not in self.POSITIONS['sea']:
+        if West not in self.POSITIONS['building']:
             actions.append('West')
       #  if East in self.POSITIONS['street'] or East in self.SHOPS or East in self.CUSTOMERS or East in self.POSITIONS['start']:
-        if East not in self.POSITIONS['building'] or East not in self.POSITIONS['sea']:
+        if East not in self.POSITIONS['building']:
             actions.append('East')
 
         #Add Load only if on a pizzeria
@@ -134,10 +129,7 @@ class GameProblem(SearchProblem):
     def cost(self, state, action, state2):
         cost = 0
         #One cost per movement
-        if action in ['North', 'South', 'West', 'East']:
-            if state[0] in self.POSITIONS['street']:
-                cost = 1
-        elif action in ['Load', 'Deliver']:
+        if action in ['North', 'South', 'West', 'East', 'Load', 'Deliver']:
             cost = 1
         return cost
 
@@ -168,7 +160,6 @@ class GameProblem(SearchProblem):
             self.customer2 = 1
             self.customer22=1
 
-
         #Check if customer1 exists
         try:
             self.POSITIONS['customer1']
@@ -177,41 +168,6 @@ class GameProblem(SearchProblem):
         else:
             self.customer1 = 1
             self.customer12=1
-
-        try:
-            self.POSITIONS['forest']
-        except:
-            self.forest = 0
-        else:
-            self.forest = 1
-
-        try:
-            self.POSITIONS['sea']
-        except:
-            self.sea = 0
-        else:
-            self.sea = 1
-        
-        try:
-            self.POSITIONS['desert']
-        except:
-            self.desert = 0
-        else:
-            self.desert = 1
-        
-        try:
-            self.POSITIONS['hill']
-        except:
-            self.hill = 0
-        else:
-            self.hill = 1
-        
-        try:
-            self.POSITIONS['plain']
-        except:
-            self.plain = 0
-        else:
-            self.plain = 1
         
         initial_state=(self.POSITIONS['start'][0], 0, 0, (), (), ())
 
@@ -267,21 +223,6 @@ class GameProblem(SearchProblem):
 
         #If on a satisfied customer return 0
         else:
-            if self.forest == 1:
-                if state[0] in self.POSITIONS['forest']:
-                    pending = None
-            if self.sea == 1:
-                if state[0] in self.POSITIONS['sea']:
-                    pending = None
-            if self.desert == 1:
-                if state[0] in self.POSITIONS['desert']:
-                    pending = None
-            if self.hill == 1:
-                if state[0] in self.POSITIONS['hill']:
-                    pending = None
-            if self.plain == 1:
-                if state[0] in self.POSITIONS['plain']:
-                    pending = None
             if state[0] not in self.POSITIONS['street'] and state[0] not in self.POSITIONS['pizza'] and state[0] not in self.POSITIONS['start']:
                 pending = 0
         
