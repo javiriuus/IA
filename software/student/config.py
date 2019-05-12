@@ -34,6 +34,71 @@ configuration = {
         "attributes":
             {"cost": 1},
         },
+    "forest": {
+        "graphics":{ 
+            "default": "game/graphics/terrains/forest100.png",
+            "traversed": "game/graphics/terrains/forestTraversed100.png"
+            },
+        "id":  "forest",
+        "marker": 'F',
+        "num": 0,
+        "state":
+            {"agent":None,"image": "default"},
+        "attributes":
+            {"cost": 3},
+        },
+    "hill": {
+        "graphics":{ 
+            "default": "game/graphics/terrains/hills100.png",
+            "traversed": "game/graphics/terrains/hillsTraversed100.png"
+            },
+        "id":  "hill",
+        "marker": 'H',
+        "num": 0,
+        "state":
+            {"agent":None,"image": "default"},
+        "attributes":
+            {"cost": 2},
+        },
+    "plain": {
+        "graphics":{ 
+            "default": "game/graphics/terrains/plains100.png",
+            "traversed": "game/graphics/terrains/plainsTraversed100.png"
+            },
+        "id":  "plain",
+        "marker": 'P',
+        "num": 0,
+        "state":
+            {"agent":None,"image": "default"},
+        "attributes":
+            {"cost": 1},
+        },
+    "desert": {
+        "graphics":{ 
+            "default": "game/graphics/terrains/desert100.png",
+            "traversed": "game/graphics/terrains/desertTraversed100.png"
+            },
+        "id":  "desert",
+        "marker": 'D',
+        "num": 0,
+        "state":
+            {"agent":None,"image": "default"},
+        "attributes":
+            {"cost": 3},
+        },
+    "sea": {
+        "graphics":{ 
+            "default": "game/graphics/terrains/sea100.png",
+            "traversed": "game/graphics/terrains/seaTraversed100.png"
+            },
+        "id":  "sea",
+        "marker": 'S',
+        "num": 0,
+        "state":
+            {"agent":None,"image": "default"},
+        "attributes":
+        {"cost": 1, "blocked": True},
+        },
     "pizza": {
         "graphics":{ 
             "default": "game/graphics/logistics/restaurant100.png",
@@ -106,7 +171,7 @@ configuration = {
             },
         "id":  "start",
         "marker": 'W',
-        "num": 0,
+       "num": 0,
         "state":
             {"agent":None,"image": "default"},
         "attributes":
