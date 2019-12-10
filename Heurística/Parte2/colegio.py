@@ -9,7 +9,24 @@ class Bus():
 
     def mover(destino):
         self.parada=destino
-        return 0
+        return heuristica1(), heuristica2()
+
+    def coger(alumno):
+        if self.parada==alumno[1]: #Sacarlo de aqui y meterlo en la generación de nodos (?)
+            self.alumnosBus.append(alumno[0])
+            self.alumnosRestantes.pop(self.alumnosRestantes.index(alumno))
+        return heuristica1(), heuristica2()
+
+    def dejar(alumno):
+        if alumno==parada.colegio: #Sacarlo de aqui y meterlo en la generación de nodos (?)
+            self.alumnosBus.pop(self.alumnosBus.index(alumno))
+        return heuristica1(), heuristica2()
+
+    def heurista1():
+        return len(alumnosBus)+len(alumnosRestantes) #Añadir distancia hasta la posición inicial (?)
+
+    def heuristica2():
+        pass
 
 class Parada():
     def __init__(self, nombre, adyacentes, colegio):
@@ -78,10 +95,10 @@ class Simulador():
                     currentStop=myLine[1]
                     nMax=myLine[2]
 
-        Bus(currentStop, nMax, kidsList)
+        bus = Bus(currentStop, nMax, kidsList)
 
         keys=adjacents.keys()
         for stop in keys:
-            Parada(stop, adjacents[stop], schools[stop] if stop in schools.keys() else 0)
+            stop = Parada(stop, adjacents[stop], schools[stop] if stop in schools.keys() else 0)
 
     initialize()
